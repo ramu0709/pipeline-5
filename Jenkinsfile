@@ -23,6 +23,7 @@ node {
 
     stage('✅ Build') {
         sh "${mavenHome}/bin/mvn clean package"
+        sh "ls -l target/"  // List files in the target directory to verify JAR file
     }
 
     stage('✅ SonarQube') {
@@ -53,7 +54,7 @@ node {
         nexusArtifactUploader artifacts: [[
             artifactId: 'maven-web-application',
             classifier: '',
-            file: 'target/maven-web-application.jar',
+            file: 'target/maven-web-application.jar',  // Ensure the path is correct
             type: 'jar'
         ]],
         credentialsId: 'nexus-credentials',
