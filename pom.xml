@@ -5,11 +5,11 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>Batman</groupId>
-    <artifactId>maven-web-application</artifactId>
+    <artifactId>application</artifactId> <!-- Changed to "application" -->
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
-    <name>maven-web-application</name>
+    <name>application</name> <!-- Changed to "application" -->
     <description>Spring Boot Maven App</description>
 
     <properties>
@@ -35,6 +35,7 @@
     </dependencies>
 
     <build>
+        <finalName>application</finalName> <!-- Ensure final JAR name is "application" -->
         <plugins>
             <!-- Spring Boot Maven Plugin -->
             <plugin>
