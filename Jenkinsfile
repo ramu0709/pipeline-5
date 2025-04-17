@@ -60,7 +60,7 @@ node {
             ]],
             credentialsId: 'nexus-credentials',
             groupId: 'Batman',
-            version: '0.0.1-SNAPSHOT',  // Ensure this version matches your JAR version
+            version: '0.0.2-SNAPSHOT',  // Ensure this version matches your JAR version
             repository: 'maven-releases',  // Ensure the correct repository name in Nexus
             nexusUrl: '172.21.40.70:8081',  // Nexus URL
             nexusVersion: 'nexus3',
