@@ -1,6 +1,6 @@
 node {
     def mavenHome = tool name: "Maven 3.9.9"
-    def imageName = "maven-web-application"
+    def imageName = "application"  // Changed name to "application"
     def dockerHubUser = "ramu7"
     def imageTag = "${dockerHubUser}/${imageName}:${BUILD_NUMBER}"
 
@@ -22,7 +22,7 @@ node {
     echo "✅ Git Branch: ${branchName}"
 
     stage('✅ Build') {
-        sh "${mavenHome}/bin/mvn clean package"
+        sh "${mavenHome}/bin/mvn clean package -X"  // Debug Maven build output
         sh "ls -l target/"  // List files in the target directory to verify JAR file
     }
 
@@ -52,9 +52,9 @@ node {
         def version = (branchName == "main" || branchName == "master") ? "0.0.1" : "0.0.1-SNAPSHOT"
 
         nexusArtifactUploader artifacts: [[
-            artifactId: 'maven-web-application',
+            artifactId: 'application',  // Changed name to "application"
             classifier: '',
-            file: 'target/maven-web-application.jar',  // Ensure the path is correct
+            file: 'target/application.jar',  // Ensure this path is correct
             type: 'jar'
         ]],
         credentialsId: 'nexus-credentials',
