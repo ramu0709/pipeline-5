@@ -7,9 +7,9 @@ node {
     buildName "pipe - #${BUILD_NUMBER}"
     echo "✅ Job: ${env.JOB_NAME}, Node: ${env.NODE_NAME}"
 
-    properties([
-        buildDiscarder(logRotator(numToKeepStr: '2')),
-        pipelineTriggers([githubPush()])
+    properties([ 
+        buildDiscarder(logRotator(numToKeepStr: '2')), 
+        pipelineTriggers([githubPush()]) 
     ])
 
     stage('✅ Checkout Code') {
@@ -51,6 +51,7 @@ node {
         def repository = (branchName == "main" || branchName == "master") ? "sample-release" : "sample-snapshot"
         def version = (branchName == "main" || branchName == "master") ? "0.0.1" : "0.0.1-SNAPSHOT"
 
+        // Ensure the correct file path to the generated JAR
         nexusArtifactUploader(
             artifacts: [[
                 artifactId: 'application',  // Correct artifactId
@@ -60,8 +61,8 @@ node {
             ]],
             credentialsId: 'nexus-credentials',
             groupId: 'Batman',
-            version: '1.2-SNAPSHOT',  // Ensure this version matches your JAR version
-            repository: 'maven-releases',  // Ensure the correct repository name in Nexus
+            version: version,  // Use dynamic version based on the branch
+            repository: repository,  // Ensure the correct repository name in Nexus
             nexusUrl: '172.21.40.70:8081',  // Nexus URL
             nexusVersion: 'nexus3',
             protocol: 'http'
@@ -72,17 +73,17 @@ node {
         withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
             sh """
                 docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}
-                docker build -t ${imageTag} .
-                docker push ${imageTag}
+                docker build -t ${imageTag} .  // Build Docker image
+                docker push ${imageTag}  // Push Docker image to Docker Hub
             """
         }
     }
 
     stage('✅ Run in Docker Container') {
         sh """
-            docker stop ${imageName}-${BUILD_NUMBER} || true
-            docker rm ${imageName}-${BUILD_NUMBER} || true
-            docker run -d --name ${imageName}-${BUILD_NUMBER} -p 9073:8080 ${imageTag}
+            docker stop ${imageName}-${BUILD_NUMBER} || true  // Stop any running container with the same name
+            docker rm ${imageName}-${BUILD_NUMBER} || true  // Remove the container
+            docker run -d --name ${imageName}-${BUILD_NUMBER} -p 9073:8080 ${imageTag}  // Run container with mapped port
         """
     }
 }
