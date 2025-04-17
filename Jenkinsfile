@@ -51,20 +51,22 @@ node {
         def repository = (branchName == "main" || branchName == "master") ? "sample-release" : "sample-snapshot"
         def version = (branchName == "main" || branchName == "master") ? "0.0.1" : "0.0.1-SNAPSHOT"
 
-        nexusArtifactUploader artifacts: [[
-            artifactId: 'application',  // Changed name to "application"
-            classifier: '',
-            file: 'target/application.jar',  // Ensure this path is correct
-            type: 'jar'
-        ]],
-        credentialsId: 'nexus-credentials',
-        groupId: 'Batman',
-        version: version,
-        repository: repository,
-        nexusUrl: '172.21.40.70:8081',
-        nexusVersion: 'nexus3',
-        protocol: 'http'
-    }
+nexusArtifactUploader(
+    artifacts: [[
+        artifactId: 'application',  // Correct artifactId
+        classifier: '',
+        file: 'target/application-0.0.1-SNAPSHOT.jar',  // Correct file path to the generated JAR
+        type: 'jar'
+    ]],
+    credentialsId: 'nexus-credentials',
+    groupId: 'Batman',
+    version: '0.0.1-SNAPSHOT',  // Ensure this version matches your JAR version
+    repository: 'maven-releases',  // Ensure the correct repository name in Nexus
+    nexusUrl: 'http://172.21.40.70:8081',  // Nexus URL
+    nexusVersion: 'nexus3',
+    protocol: 'http'
+)
+
 
     stage('✅ Docker Build & Push to Docker Hub') {
         withCredentials([usernamePassword(credentialsId: 'docker-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
