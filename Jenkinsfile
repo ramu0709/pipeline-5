@@ -23,7 +23,7 @@ node {
 
     stage('✅ Build') {
         echo "🔧 Building the project using Maven..."
-        sh "${mavenHome}/bin/mvn clean package -X"  // Debug output
+        sh "${mavenHome}/bin/mvn clean package -X"
         echo "📁 Listing contents of target/ after build:"
         sh "ls -lh target/"
         echo "🔍 Searching for generated JAR files:"
@@ -59,6 +59,7 @@ node {
         echo "📦 Preparing to upload to Nexus:"
         echo "📂 Verifying that file exists: ${jarPath}"
         sh "ls -lh ${jarPath} || echo '❌ File not found!'"
+        sh "find target/ -name '*.jar'"
 
         nexusArtifactUploader(
             artifacts: [[
