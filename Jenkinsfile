@@ -1,6 +1,6 @@
 node {
     def mavenHome = tool name: "Maven 3.9.9"
-    def imageName = "application"  // Changed name to "application"
+    def imageName = "application"
     def dockerHubUser = "ramu7"
     def imageTag = "${dockerHubUser}/${imageName}:${BUILD_NUMBER}"
 
@@ -22,8 +22,12 @@ node {
     echo "✅ Git Branch: ${branchName}"
 
     stage('✅ Build') {
-        sh "${mavenHome}/bin/mvn clean package -X"  // Debug Maven build output
-        sh "ls -l target/"  // List files in the target directory to verify JAR file
+        echo "🔧 Building the project using Maven..."
+        sh "${mavenHome}/bin/mvn clean package -X"  // Debug output
+        echo "📁 Listing contents of target/ after build:"
+        sh "ls -lh target/"
+        echo "🔍 Searching for generated JAR files:"
+        sh "find target/ -name '*.jar'"
     }
 
     stage('✅ SonarQube') {
@@ -50,20 +54,24 @@ node {
     stage('✅ Upload to Nexus') {
         def repository = (branchName == "main" || branchName == "master") ? "sample-release" : "sample-snapshot"
         def version = (branchName == "main" || branchName == "master") ? "0.0.1" : "0.0.1-SNAPSHOT"
+        def jarPath = "target/application-${version}.jar"
 
-        // Ensure the correct file path to the generated JAR
+        echo "📦 Preparing to upload to Nexus:"
+        echo "📂 Verifying that file exists: ${jarPath}"
+        sh "ls -lh ${jarPath} || echo '❌ File not found!'"
+
         nexusArtifactUploader(
             artifacts: [[
-                artifactId: 'application',  // Correct artifactId
+                artifactId: 'application',
                 classifier: '',
-                file: 'target/application-0.0.1-SNAPSHOT.jar',  // Correct file path to the generated JAR
+                file: jarPath,
                 type: 'jar'
             ]],
             credentialsId: 'nexus-credentials',
             groupId: 'Batman',
-            version: version,  // Use dynamic version based on the branch
-            repository: repository,  // Ensure the correct repository name in Nexus
-            nexusUrl: '172.21.40.70:8081',  // Nexus URL
+            version: version,
+            repository: repository,
+            nexusUrl: '172.21.40.70:8081',
             nexusVersion: 'nexus3',
             protocol: 'http'
         )
@@ -81,9 +89,9 @@ node {
 
     stage('✅ Run in Docker Container') {
         sh """
-            docker stop ${imageName}-${BUILD_NUMBER} || true  // Stop any running container with the same name
-            docker rm ${imageName}-${BUILD_NUMBER} || true  // Remove the container
-            docker run -d --name ${imageName}-${BUILD_NUMBER} -p 9073:8080 ${imageTag}  // Run container with mapped port
+            docker stop ${imageName}-${BUILD_NUMBER} || true
+            docker rm ${imageName}-${BUILD_NUMBER} || true
+            docker run -d --name ${imageName}-${BUILD_NUMBER} -p 9073:8080 ${imageTag}
         """
     }
 }
