@@ -37,8 +37,9 @@
     </dependencies>
 
     <build>
+        <finalName>application</finalName> <!-- Ensures JAR is named application-0.0.1-SNAPSHOT.jar -->
         <plugins>
-            <!-- Spring Boot Maven Plugin -->
+            <!-- Spring Boot Plugin for executable JAR -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
@@ -46,13 +47,13 @@
                 <executions>
                     <execution>
                         <goals>
-                            <goal>repackage</goal> <!-- This ensures the executable JAR is built -->
+                            <goal>repackage</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- Compiler Plugin -->
+            <!-- Java Compiler Plugin -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
